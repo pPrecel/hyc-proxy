@@ -11,7 +11,6 @@ import (
 
 const (
 	defaultPort       = ":8080"
-	defaultCarpetURL  = "http://europe-west3-playground-296517.cloudfunctions.net/carpet?degree=5"
 	defaultHTMLFormat = `%s`
 )
 
@@ -37,9 +36,6 @@ func main() {
 func getConfig() config {
 	cfg := config{}
 	cfg.carpetURL = os.Getenv("CARPET_URL")
-	if cfg.carpetURL == "" {
-		cfg.carpetURL = defaultCarpetURL
-	}
 
 	cfg.serverPort = os.Getenv("SERVER_ADDRESS")
 	if cfg.serverPort == "" {
@@ -58,6 +54,11 @@ func getConfig() config {
 
 func buildHandler(carpetURL, htmlFormat string) func(writer http.ResponseWriter, request *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		if carpetURL == "" {
+			logrus.Println("End request without carpet")
+			fmt.Fprintf(writer, htmlFormat, "<h1>Hello GitOps!</h1>")
+			return
+		}
 		resp, err := http.Get(carpetURL)
 		if err != nil {
 			logrus.Fatalln(fmt.Sprintf("get error: %s", err.Error()))
