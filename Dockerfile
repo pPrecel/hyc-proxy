@@ -10,7 +10,7 @@ WORKDIR /app
 COPY cmd .
 COPY go.mod .
 
-RUN go build -o /app/bin/main .
+RUN go mod tidy && go build -o /app/bin/main .
 
 FROM scratch
 
